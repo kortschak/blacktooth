@@ -3,6 +3,8 @@ package main
 import (
 	"time"
 
+	"github.com/soypat/cyw43439"
+
 	"tinygo.org/x/bluetooth"
 )
 
@@ -23,11 +25,11 @@ func main() {
 	//   LED from functioning with a failure in the chan range at the
 	//   bottom of "gpio set: pollForIoctl timeout".
 	//
-	//	dev := cyw43439.NewPicoWDevice()
-	//	must("initialise device", dev.Init(cyw43439.DefaultWifiBluetoothConfig()))
+	dev := cyw43439.NewPicoWDevice()
+	must("initialise device", dev.Init(cyw43439.DefaultWifiBluetoothConfig()))
 
 	println("starting")
-	must("enable BLE stack", adapter.Enable())
+	adapter.Use(dev)
 
 	adv := adapter.DefaultAdvertisement()
 	must("config adv", adv.Configure(bluetooth.AdvertisementOptions{
@@ -61,12 +63,10 @@ func main() {
 
 	for on := range led {
 		println(on)
-		// Code depends on cyw43439.NewPicoWDevice above.
-		//
-		//	err := dev.GPIOSet(0, on)
-		//	if err != nil {
-		//		println("gpio set: " + err.Error())
-		//	}
+		err := dev.GPIOSet(0, on)
+		if err != nil {
+			println("gpio set: " + err.Error())
+		}
 	}
 }
 
